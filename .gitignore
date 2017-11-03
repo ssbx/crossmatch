@@ -1,0 +1,6 @@
+.x86_64/
+lib/
+tests/cm_file
+tests/frcm_file
+tests/nn_file
+tests/read_file
