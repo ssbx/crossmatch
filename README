@@ -1,0 +1,21 @@
+To compile the source and run the tests:
+
+    make tests
+
+Refer to the supporting documentation for help.
+
+This has been tested on debian linux using g++.
+
+
+This is version 1.1 which fixes a bug when calculating
+the cos dec correction for the RA bounds near the poles.
+Previously was getting a domain error on trig functions
+when the search radius pushes the dec location beyond 
+the pole. The result used to be a "nAn" (not a number)
+and so a potential match was not being found.
+
+The fix is in method computeRACorrection in the Object class.
+
+
+Have also included an example to perform a fixed radius
+cross match.
