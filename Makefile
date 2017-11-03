@@ -75,6 +75,8 @@ tests: apps
 	tests/nn_file 0 tests/data1.txt ascii 10 index filter
 	tests/frcm_file 0 tests/data1.txt ascii 0 tests/data2.txt ascii 10 index as filter frcm_out
 
+cross:
+	tests/cm_file 0 tests/data1.txt ascii 0.000305553 0 tests/data2.txt ascii 0.00030554 1.96 index as filter
 
 make_obj_dir:
 	if [ ! -d $(OBJ_HOME)/data ]; then mkdir -p $(OBJ_HOME)/data; fi

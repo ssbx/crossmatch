@@ -61,27 +61,23 @@
 
 static void usage(char const * const prog_name)
 {
-  std::cerr << prog_name
-            << " <a_dir|0> <a_file> <binary|ascii> [merge] <a_maxSD>"
-            << " <b_dir|0> <b_file> <binary|ascii> [merge] <b_maxSD>"
-            << " <z_alpha> <index|list> <bb|as> <filter|nested|sweep>" << std::endl;
+    std::cerr << prog_name
+        << " <a_dir|0> <a_file> <binary|ascii> [merge] <a_maxSD>"
+        << " <b_dir|0> <b_file> <binary|ascii> [merge] <b_maxSD>"
+        << " <z_alpha> <index|list> <bb|as> <filter|nested|sweep>" << std::endl;
 }
 
 int main(int argc, char * argv[])
 {
 #ifdef PLOT_TIMES
-  Timer::globalTimer()->cont();        // need to start the timer
+    Timer::globalTimer()->cont();        // need to start the timer
 #endif
 
-  int status = 0;
+    if (argc < 13 || argc > 15) {
+        usage(argv[0]);
+        return 1;
+    }
 
-  if (argc < 13 || argc > 15)
-  {
-    usage(argv[0]);
-    status = 1;
-  }
-  else
-  {
     int param = 1;
     char * aDir = argv[param++];
     char * aName = argv[param++];
@@ -89,8 +85,8 @@ int main(int argc, char * argv[])
     bool aMerge = false;
     if (strcmp(argv[param], "merge") == 0)
     {
-      aMerge = true;
-      param++;
+        aMerge = true;
+        param++;
     }
     double aMaxSD = atof(argv[param++]);
 
@@ -100,8 +96,8 @@ int main(int argc, char * argv[])
     bool bMerge = false;
     if (strcmp(argv[param], "merge") == 0)
     {
-      bMerge = true;
-      param++;
+        bMerge = true;
+        param++;
     }
     double bMaxSD = atof(argv[param++]);
 
@@ -114,27 +110,27 @@ int main(int argc, char * argv[])
     bool useNestedLoop = (!useFilter && strcmp(argv[param++], "nested") == 0);
 
     if (useFilter)
-      std::cout << "Using CM filter           : true" << std::endl; 
+        std::cout << "Using CM filter           : true" << std::endl; 
     else if (useNestedLoop)
-      std::cout << "Using generic nested loop : true" << std::endl;
+        std::cout << "Using generic nested loop : true" << std::endl;
     else
-      std::cout << "Using generic plane sweep : true" << std::endl;
+        std::cout << "Using generic plane sweep : true" << std::endl;
     std::cout << "Using index active list   : " << ((useIndex) ? "true" : "false") << std::endl;
     std::cout << "Using full BB refine      : " << ((useBB) ? "true" : "false") << std::endl;
 
     /* example to consume successful angular separation refine candidates to a file */
-/*
-    ObjectPairConsumer accAngSepPairCons(AngularSeparationRefine::name() + " accept");
-                         new FilePairWriter(new TextFileDatumWriter(), "ASacc"));
-*/
+    /*
+       ObjectPairConsumer accAngSepPairCons(AngularSeparationRefine::name() + " accept");
+       new FilePairWriter(new TextFileDatumWriter(), "ASacc"));
+       */
     ObjectPairConsumer accAngSepPairCons(AngularSeparationRefine::name() + " accept");
     ObjectPairConsumer rejAngSepPairCons(AngularSeparationRefine::name() + " reject");
 
     AngularSeparationRefine angSepRefine(&accAngSepPairCons,
-                                         &rejAngSepPairCons);
+            &rejAngSepPairCons);
 
     ObjectPairRefineConsumer angSepConsumer(BoundingBoxRefine::name(),
-                                            &angSepRefine);
+            &angSepRefine);
 
     ObjectPairConsumer rejBBPairCons(BoundingBoxRefine::name() + " reject");
 
@@ -142,42 +138,40 @@ int main(int argc, char * argv[])
 
     // depending on value of useBB, set the CrossMatchRefine
     ObjectPairRefineConsumer pairCons(((useNestedLoop) ? NestedLoopFilter::name()
-                                                       : DecPlaneSweepFilter::name()),
-                                      ((useBB) ? (Refine*) &bbRefine
-                                               : (Refine*) &angSepRefine));
+                : DecPlaneSweepFilter::name()),
+            ((useBB) ? (Refine*) &bbRefine
+             : (Refine*) &angSepRefine));
 
     /* example to consume non matches to a file */
-/*
-    ObjectConsumer uaCons("A points reject",
-                          new FileWriter(new TextFileDatumWriter(), "NMA"));
-    ObjectConsumer ubCons("B points reject",
-                          new FileWriter(new TextFileDatumWriter(), "NMB"));
-*/
+    /*
+       ObjectConsumer uaCons("A points reject",
+            new FileWriter(new TextFileDatumWriter(), "NMA"));
+       ObjectConsumer ubCons("B points reject",
+            new FileWriter(new TextFileDatumWriter(), "NMB"));
+       */
     ObjectConsumer uaCons("A points reject");
     ObjectConsumer ubCons("B points reject");
 
-    ObjectProducer * aProd = FileProducerFactory::instance()->createProducer(
-                                        aDir, aName, aBinary, aMerge, false, aMaxSD);
-    ObjectProducer * bProd = FileProducerFactory::instance()->createProducer(
-                                        bDir, bName, bBinary, bMerge, false, bMaxSD);
+    ObjectProducer *aProd = FileProducerFactory::instance()->createProducer(
+                                aDir, aName, aBinary, aMerge, false, aMaxSD);
+    ObjectProducer *bProd = FileProducerFactory::instance()->createProducer(
+                                bDir, bName, bBinary, bMerge, false, bMaxSD);
 
-    
-    ActiveList * aList = (useIndex) ? (ActiveList *) new IndexedActiveList()
-                                    : (ActiveList *) new SimpleActiveList();
-    Matcher * matcher = new CrossMatch(aProd, bProd, aList , &pairCons, &uaCons, &ubCons);
-    Filter * filter = 0;
+
+    ActiveList  *aList   = (useIndex) ? (ActiveList *) new IndexedActiveList() : (ActiveList *) new SimpleActiveList();
+    Matcher     *matcher = new CrossMatch(aProd, bProd, aList , &pairCons, &uaCons, &ubCons);
+    Filter      *filter  = 0;
 
     if (useFilter)
-      filter = new Filter(matcher);
+        filter = new Filter(matcher);
     else if (useNestedLoop)
-      filter = new NestedLoopFilter(matcher);
+        filter = new NestedLoopFilter(matcher);
     else
-      filter = new DecPlaneSweepFilter(matcher);
+        filter = new DecPlaneSweepFilter(matcher);
 
     filter->filter();
 
     delete filter;
-  }
 
-  return status;
+    return 0;
 }
